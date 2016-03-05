@@ -10,9 +10,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 
-
 class City(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     name = models.CharField(max_length=255)
     key = models.CharField(max_length=255)
     place = models.ForeignKey('Place')
@@ -34,10 +32,12 @@ class City(models.Model):
         managed = False
         db_table = 'cities'
         verbose_name_plural = 'cities'
+        
+    def __unicode__(self):
+        return self.name
 
 
 class Continent(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     name = models.CharField(max_length=255)
     slug = models.CharField(max_length=255)
     key = models.CharField(unique=True, max_length=255)
@@ -49,10 +49,12 @@ class Continent(models.Model):
     class Meta:
         managed = False
         db_table = 'continents'
+        
+    def __unicode__(self):
+        return self.name
 
 
 class Country(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     name = models.CharField(max_length=255)
     slug = models.CharField(max_length=255)
     key = models.CharField(unique=True, max_length=255)
@@ -79,10 +81,12 @@ class Country(models.Model):
         managed = False
         db_table = 'countries'
         verbose_name_plural = 'countries'
+        
+    def __unicode__(self):
+        return self.name
 
 
 class Event(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     key = models.CharField(unique=True, max_length=255)
     league = models.ForeignKey('League')
     season = models.ForeignKey('Season')
@@ -98,10 +102,10 @@ class Event(models.Model):
         managed = False
         db_table = 'events'
 
-
+    def __unicode__(self):
+        return self.key
 
 class EventsTeam(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     event = models.ForeignKey('Event')
     team = models.ForeignKey('Team')
     created_at = models.DateTimeField(blank=True, null=True)
@@ -114,9 +118,8 @@ class EventsTeam(models.Model):
 
 
 class Game(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     key = models.CharField(unique=True, max_length=255, blank=True, null=True)
-    round_id = models.IntegerField()
+    round = models.ForeignKey('Round')
     pos = models.IntegerField()
     group = models.ForeignKey('Group', blank=True, null=True)
     team1 = models.ForeignKey('Team', related_name='team1',)
@@ -126,7 +129,7 @@ class Game(models.Model):
     play_at_v2 = models.DateTimeField(blank=True, null=True)
     play_at_v3 = models.DateTimeField(blank=True, null=True)
     ground_id = models.IntegerField(blank=True, null=True)
-    city_id = models.IntegerField(blank=True, null=True)
+    city = models.ForeignKey('City', blank=True, null=True)
     knockout = models.BooleanField()
     home = models.BooleanField()
     score1 = models.IntegerField(blank=True, null=True)
@@ -149,10 +152,12 @@ class Game(models.Model):
     class Meta:
         managed = False
         db_table = 'games'
+        
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.team1, self.team2)
 
         
 class Group(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     event = models.ForeignKey('Event')
     title = models.CharField(max_length=255)
     pos = models.IntegerField()
@@ -162,23 +167,24 @@ class Group(models.Model):
     class Meta:
         managed = False
         db_table = 'groups'
+    
+    def __unicode__(self):
+        return self.title
 
 
 class GroupsTeam(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
-    group_id = models.IntegerField()
-    team_id = models.IntegerField()
+    group = models.ForeignKey('Group')
+    team = models.ForeignKey('Team')
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'groups_teams'
-        unique_together = (('group_id', 'team_id'),)
+        unique_together = (('group', 'team'),)
 
 
 class League(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     key = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     country = models.ForeignKey('Country', blank=True, null=True)
@@ -189,27 +195,13 @@ class League(models.Model):
     class Meta:
         managed = False
         db_table = 'leagues'
+        
+    def __unicode__(self):
+        return self.title
 
-
-class Log(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
-    msg = models.CharField(max_length=255)
-    level = models.CharField(max_length=255)
-    app = models.CharField(max_length=255, blank=True, null=True)
-    tag = models.CharField(max_length=255, blank=True, null=True)
-    pid = models.IntegerField(blank=True, null=True)
-    tid = models.IntegerField(blank=True, null=True)
-    ts = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'logs'
 
 
 class Place(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     name = models.CharField(max_length=255)
     kind = models.CharField(max_length=255)
     lat = models.TextField(blank=True, null=True)  # This field type is a guess.
@@ -220,10 +212,12 @@ class Place(models.Model):
     class Meta:
         managed = False
         db_table = 'places'
+        
+    def __unicode__(self):
+        return self.name
 
 
 class Prop(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     key = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
     kind = models.CharField(max_length=255, blank=True, null=True)
@@ -236,7 +230,6 @@ class Prop(models.Model):
 
 
 class Region(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     name = models.CharField(max_length=255)
     key = models.CharField(max_length=255)
     place = models.ForeignKey('Place')
@@ -255,11 +248,13 @@ class Region(models.Model):
         managed = False
         db_table = 'regions'
         unique_together = (('key', 'country'),)
+        
+    def __unicode__(self):
+        return self.name
 
         
 class Round(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
-    event_id = models.IntegerField()
+    event = models.ForeignKey('Event')
     title = models.CharField(max_length=255)
     title2 = models.CharField(max_length=255, blank=True, null=True)
     pos = models.IntegerField()
@@ -273,10 +268,12 @@ class Round(models.Model):
     class Meta:
         managed = False
         db_table = 'rounds'
+        
+    def __unicode__(self):
+        return self.title
 
 
 class Season(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     key = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -285,10 +282,12 @@ class Season(models.Model):
     class Meta:
         managed = False
         db_table = 'seasons'
+        
+    def __unicode__(self):
+        return self.title
 
 
 class Tagging(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     tag_id = models.IntegerField()
     taggable_id = models.IntegerField()
     taggable_type = models.CharField(max_length=255)
@@ -302,7 +301,6 @@ class Tagging(models.Model):
 
 
 class Tag(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     key = models.CharField(unique=True, max_length=255)
     slug = models.CharField(max_length=255)
     name = models.CharField(max_length=255, blank=True, null=True)
@@ -314,17 +312,19 @@ class Tag(models.Model):
     class Meta:
         managed = False
         db_table = 'tags'
+        
+    def __unicode__(self):
+        return self.name
 
 
 class Team(models.Model):
-    id = models.IntegerField(primary_key=True)  # AutoField?
     key = models.CharField(unique=True, max_length=255)
     title = models.CharField(max_length=255)
     title2 = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True)
     synonyms = models.CharField(max_length=255, blank=True, null=True)
-    country_id = models.IntegerField()
-    city_id = models.IntegerField(blank=True, null=True)
+    country = models.ForeignKey('Country')
+    city = models.ForeignKey('City', blank=True, null=True)
     club = models.BooleanField()
     since = models.IntegerField(blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
@@ -337,3 +337,5 @@ class Team(models.Model):
         managed = False
         db_table = 'teams'
 
+    def __unicode__(self):
+        return self.title
