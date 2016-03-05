@@ -1,3 +1,5 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 
-# Create your views here.
+class StatsTemplateView(TemplateView):
+    template_name = 'stats.html'
