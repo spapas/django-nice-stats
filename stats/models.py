@@ -63,7 +63,7 @@ class Country(models.Model):
     alt_names = models.CharField(max_length=255, blank=True, null=True)
     pop = models.IntegerField()
     area = models.IntegerField()
-    continent_id = models.IntegerField(blank=True, null=True)
+    continent = models.ForeignKey('Continent', blank=True, null=True)
     country_id = models.IntegerField(blank=True, null=True)
     s = models.BooleanField()
     c = models.BooleanField()
