@@ -17,8 +17,10 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from stats.views import StatsTemplateView
+from django_git_info.views import git_info
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^stats/', StatsTemplateView.as_view() ),
+    url(r'^gitinfo/', git_info ),
 ]
